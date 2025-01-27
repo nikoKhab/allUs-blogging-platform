@@ -1,18 +1,24 @@
-import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { Provider } from "jotai";
+
 import "./globals.css";
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+type LayoutProps = {
+  children: ReactNode;
+};
+
+function AppLayout({ children }: LayoutProps) {
   return (
-    <html lang="en">
-      <body
-        
-      >
-        {children}
+    <html>
+      <body>
+        <Provider>
+          <main className="flex min-h-screen flex-col items-center justify-between p-24">
+            {children}
+          </main>
+        </Provider>
       </body>
     </html>
   );
 }
+
+export default AppLayout;

@@ -2,18 +2,37 @@
 import { useRef, useState } from "react";
 import Styles from "./page.module.css";
 import Button  from "../components/googleButton/Button";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/app/firebase/init";
-import { redirect } from "next/dist/server/api-utils";
 import { provider } from '@/app/firebase/init'
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-
-
+import { useRouter } from "next/navigation";
+import { userAtom } from "../jotai";
+import { useAtom } from "jotai";
 
 const Page = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const router = useRouter()
+  const [error, setError] = useState()  
+  const [userState, setUserState] = useAtom(userAtom)
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      setUserState(user)
+      
+      const uid = user.uid;
+      console.log(uid)
+      console.log(userState)
+      // ...
+    } else {
+      // User is signed out
+      // ...
+      setUserState({})
+    }
+  });
   
+
   const [userSignUpForm, setUserSignUpForm] = useState({
     userEmail: "",
     userPassword: ""
@@ -35,16 +54,17 @@ const Page = () => {
           const user = userCredential.user;
           console.log("it did work bro");
           console.log(user);
-          redirect('/')
+          console.log("💩")
         })
         .catch((error) => {
           const errorCode = error.code;
           const errorMessage = error.message;
           console.log(errorCode, errorMessage, error);
+          setError(errorMessage)
           console.log("BRUH");
         });
     } else {
-      console.log("Please fill out both fields");
+      console.log("nigger")
     }
   };
 
@@ -60,6 +80,7 @@ const Page = () => {
     // The signed-in user info.
     const user = result.user;
     console.log(user, 'yes, yes, yes, aooohoooo')
+    router.push('/')
     // IdP data available using getAdditionalUserInfo(result)
     // ...
   }).catch((error) => {
@@ -70,15 +91,15 @@ const Page = () => {
     const email = error.customData.email;
     // The AuthCredential type that was used.
     const credential = GoogleAuthProvider.credentialFromError(error);
+    setError(errorMessage)
     console.log(error, "bruh")
     // ...
   });
   }
-
+///////////////////////////////////////////////////////////////////////////////
   return (
     <>
       <h1 className={Styles.title}>Sign up</h1>
-
       <center>
         <div className={Styles.mainCont}>
           <form className={Styles.form}>
@@ -98,13 +119,12 @@ const Page = () => {
             />
           </form>
           <button onClick={createUser}>submit</button>
-
           <span onClick={authenticateUserWithGoogle}><Button /></span>
         </div>
+        <p className="err">{error}</p>
       </center>
     </>
   );
 };
 
 export default Page;
-
