@@ -5,6 +5,7 @@ import Link from "next/link";
 import { auth } from "@/app/firebase/init";
 import { onAuthStateChanged } from "firebase/auth";
 import { getAuth, signOut } from "firebase/auth";
+import Navbar from './components/navbar/Navbar';
 
 
 export default function Home() {
@@ -39,10 +40,17 @@ export default function Home() {
     <>
       {userUid ? (
         <>
+          <Navbar loggedIn={false}></Navbar>
           <h1>home</h1>
           <button onClick={logUserOut}>log out</button>
         </>
-      ) : <h1>please sign up, or log in</h1>}
+      ) : (
+        <>
+          <Navbar loggedIn={true}></Navbar>
+          <h1>please sign up, or log in</h1>
+        </>
+      )}
     </>
   );
+  
 }
